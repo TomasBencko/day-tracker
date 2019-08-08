@@ -3,16 +3,37 @@ const actionList = document.querySelector('#action-list')
 const outputField = document.querySelector('#output-field')
 const data = JSON.parse(localStorage.getItem('data')) || []
 
+let lastActive = null
+
+
 
 /* ============================ Action list ============================ */
 
 const actions = [
-	{ text: 'Spánok', color: '#16a085' },
-	{ text: 'Ležanie v posteli', color: '#1abc9c' },
-	{ text: 'Cvičenie', color: '#16a085' },
-	{ text: 'Sprchovanie sa', color: '#1abc9c' },
-	{ text: 'Venčenie Aishi', color: '#16a085' },
-	{ text: 'WC', color: '#1abc9c' },
+	{ text: 'Nezaradené' },
+
+	{ text: 'Spánok' },
+	{ text: 'Zapisovanie si sna' },
+	{ text: 'Cvičenie' },
+	{ text: 'Oddych' },
+	{ text: 'Autogénny tréning' },
+
+	{ text: 'Hygiena' },
+	{ text: 'Stravovanie sa' },
+	{ text: 'Obliekanie sa' },
+
+	{ text: 'Venčenie' },
+	{ text: 'Kŕmenie psa' },
+	{ text: 'Hra so psom' },
+
+	{ text: 'Čas na PC' },
+	{ text: 'Čas na mobile' },
+	{ text: 'Čítanie' },
+	{ text: 'Film' },
+	{ text: 'Upratovanie' },
+
+	{ text: 'Stretnutie' },
+	{ text: 'Presun' },
 ]
 
 function populateActionList() {
@@ -21,6 +42,20 @@ function populateActionList() {
 			<div>${item.text}</div>
 		`
 	}).join('')
+	actionList.innerHTML += `<input type="text" name="custom" id="custom-field"><div id="custom-add">Pridať</div>`
+
+	if (localStorage.getItem('last') !== 'null') {
+		var divTags = document.getElementsByTagName("div")
+		var searchText = localStorage.getItem('last')
+	
+		for (var i = 0; i < divTags.length; i++) {
+		if (divTags[i].textContent == searchText) {
+			lastActive = divTags[i]
+			lastActive.classList.add('selected')
+			break
+		}
+		}
+	}
 }
 
 populateActionList() // Render actions when page is loaded
@@ -33,24 +68,49 @@ actionList.addEventListener('click', addRecord)
 function addRecord(e) {
 	if (!e.target.matches('div')) return
 
+	let action
+
+	if (e.target === document.querySelector('#custom-add')) {
+		action = document.querySelector('#custom-field').value
+	} else {
+		action = e.target.innerHTML
+	}
+
 	const timestamp = new Date()
 	const formatedTime = timeFormat(timestamp)
 
 	setDurationToPrevious(formatedTime)
 	
-	newItem = {
-		action: e.target.innerHTML,
-		timestamp: formatedTime,
-		duration: ''
+	// Add new record
+	if (!e.target.classList.contains('selected')) {
+		newItem = {
+			action,
+			timestamp: formatedTime,
+			duration: '(prebieha)'
+		}
+		data.unshift(newItem);
+
+		if (lastActive) lastActive.classList.remove('selected')
+		lastActive = e.target
+		localStorage.setItem('last', lastActive.innerText) //////////////////////////////////
+		e.target.classList.add('selected')
+
+	// Finish action in progress
+	} else {
+		if (lastActive) lastActive.classList.remove('selected')
+		lastActive = null
+		localStorage.setItem('last', 'null') //////////////////////////////////
 	}
-	data.unshift(newItem);
 	
 	saveChanges()
 	updateOutputField()
 }
 
+
+
 function setDurationToPrevious(currentTime) {
 	if (data.length <= 0) return
+	if (data[0].duration !== '(prebieha)') return
 	const timeString = data[0].timestamp
 	const timeStart = new Date('1970-01-01T' + timeString + 'Z');
 	const timeEnd = new Date('1970-01-01T' + currentTime + 'Z');
@@ -82,7 +142,7 @@ updateOutputField()
 document.querySelector('#clear-data').addEventListener('click', clearData)
 
 function clearData() {
-	copyData()
+	// copyData()
 	data.length = 0
 	updateOutputField()
 	saveChanges()
@@ -103,6 +163,10 @@ function copyData() {
 document.querySelector('#undo-last').addEventListener('click', undoLast)
 
 function undoLast() {
+	if (lastActive) lastActive.classList.remove('selected')
+	lastActive = null
+	localStorage.setItem('last', 'null') //////////////////////////////////
+
 	data.shift()
 	updateOutputField()
 	saveChanges()
