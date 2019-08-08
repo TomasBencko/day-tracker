@@ -68,7 +68,7 @@ function updateOutputField() {
 	let outputString = ''
 	for (const item of data) {
 		const action = item.action.charAt(0).toUpperCase() + item.action.slice(1);
-		outputString += `${item.timestamp}&emsp;${action} ${item.duration}<br />`
+		outputString += `${item.timestamp}&emsp;${action} ${item.duration}&#13;&#10;`
 	}
 	outputField.innerHTML = outputString // JSON.stringify(data)
 }
