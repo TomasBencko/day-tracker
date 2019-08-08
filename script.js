@@ -96,7 +96,8 @@ function copyData() {
 	// document.execCommand("copy")
 
 
-	copyStringToClipboard(outputField.textContent)
+	iosCopyToClipboard(outputField)
+	// copyStringToClipboard(outputField.textContent)
 }
 
 document.querySelector('#undo-last').addEventListener('click', undoLast)
@@ -159,3 +160,22 @@ function copyStringToClipboard (str) {
 	// Remove temporary element
 	// document.body.removeChild(el);
  }
+
+ function iosCopyToClipboard(el) {
+    var range = document.createRange();
+
+    el.contentEditable = true;
+    el.readOnly = false;
+    range.selectNodeContents(el);
+
+    var s = window.getSelection();
+    s.removeAllRanges();
+    s.addRange(range);
+
+    el.setSelectionRange(0, 999999); // A big number, to cover anything that could be inside the element.
+
+	document.execCommand('copy');
+	
+	console.log('copied');
+	
+}
