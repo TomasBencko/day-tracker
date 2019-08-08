@@ -91,6 +91,11 @@ function clearData() {
 document.querySelector('#copy-data').addEventListener('click', copyData)
 
 function copyData() {
+
+	// outputField.innerHTML.select()
+	// document.execCommand("copy")
+
+
 	copyStringToClipboard(outputField.textContent)
 }
 
@@ -152,5 +157,5 @@ function copyStringToClipboard (str) {
 	// Copy text to clipboard
 	document.execCommand('copy');
 	// Remove temporary element
-	document.body.removeChild(el);
+	// document.body.removeChild(el);
  }
